@@ -6,12 +6,18 @@ using UnityEngine.UI;
 
 public class MainManager : MonoBehaviour
 {
+
     public Brick BrickPrefab;
     public int LineCount = 6;
     public Rigidbody Ball;
+    public string userName;
+
+    public int highScore = 0;
+    public string highScoreUser = "No High Score";
 
     public Text ScoreText;
     public GameObject GameOverText;
+    public Text HighScoreText;
     
     private bool m_Started = false;
     private int m_Points;
@@ -22,6 +28,10 @@ public class MainManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        userName = GenManager.Instance.playerName;
+
+        ScoreText.text = userName + " Score: 0";
+
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -36,6 +46,8 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+
+        GetHighScore();
     }
 
     private void Update()
@@ -65,12 +77,28 @@ public class MainManager : MonoBehaviour
     void AddPoint(int point)
     {
         m_Points += point;
-        ScoreText.text = $"Score : {m_Points}";
+        ScoreText.text = userName + $" Score : {m_Points}";
     }
 
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+
+        if(m_Points > highScore)
+        {
+            PlayerPrefs.SetInt("HighScore", m_Points);
+            PlayerPrefs.SetString("HighScoreUser", userName);
+        }
+
+
     }
+
+    public void GetHighScore()
+    {
+        highScore = PlayerPrefs.GetInt("HighScore", 0);
+        highScoreUser = PlayerPrefs.GetString("HighScoreUser", "No High Score");
+        HighScoreText.text = "Best Score: " + highScoreUser + " " + highScore;
+    }
+
 }
